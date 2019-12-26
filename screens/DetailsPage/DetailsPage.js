@@ -1,7 +1,9 @@
 import React  from "react";
-import { View, Text, TouchableOpacity, FlatList, Button, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, Button, StyleSheet, ImageBackground } from "react-native";
 import axios from 'axios';
 import { Audio } from 'expo-av';
+import bg from './../../assets/bg.jpg'
+import { Ionicons } from '@expo/vector-icons';
 
 class DetailsPage extends React.Component {
     state = {
@@ -154,29 +156,39 @@ class DetailsPage extends React.Component {
     render() {
         
         return (
-            <View style={styles.container}>
+            <ImageBackground source={bg} style={{width: '100%', height: '100%'}}>
+             
                 <FlatList
                     data={this.state.Invocations}
                     keyExtractor={item => ''+item.ID}
                     renderItem={
                         (itemData) => {
                             return (
-                                <TouchableOpacity
+                                <View
                                     style={styles.itemStyle} 
                                     >
                                     <View style={styles.textContainer}>
                                         <Text style={styles.text}>  {itemData.item.ARABIC_TEXT} </Text>
-                                        
-                                        <Button
-                                            onPress={() => this._playAndPause(itemData.item.AUDIO)} 
-                                            title={(this.state.playingStatus == 'playing' && this.state.url == itemData.item.AUDIO)? 'stop': 'play'}/>
                                     </View>
-                                </TouchableOpacity>
+                                    <View style={{   justifyContent: 'flex-start', alignItems: 'flex-start', margin: 3}}>     
+                                        <TouchableOpacity 
+                                        style={{backgroundColor: '#fff', borderWidth:2, borderColor: '#fff', borderRadius: 400, paddingHorizontal: 9, paddingVertical: 2}}
+                                        onPress={() => this._playAndPause(itemData.item.AUDIO)}>
+                                            {
+                                                (this.state.playingStatus == 'playing' && this.state.url == itemData.item.AUDIO)?
+                                                <Ionicons name="md-pause"  size={32} color="#000" /> :
+                                                <Ionicons name="md-play"  size={32} color="#000" /> 
+                                            }
+                                        </TouchableOpacity>
+                                    </View>
+
+                                </View>
                             )
                         }
                     }
                 />
-            </View>
+           
+            </ImageBackground>
         )
     }
 }
@@ -184,27 +196,28 @@ class DetailsPage extends React.Component {
 export default DetailsPage;  
 
 const styles = StyleSheet.create({
-    container: {
-        padding: 10
-    },
+    // container: {
+    //     padding: 10
+    // },
     itemStyle: {
-        width: '100%',
-        flexDirection: 'row',
-        margin: 5
+        width: '100%', 
+        borderRadius: 50,
+        flexDirection: 'column',  
+        // backgroundColor: '#0000008f', 
+        backgroundColor: '#140500c2', 
+        padding: 15,
+        margin: 6,
     },
-    image: {
-        width: '100%',
-        height: 200,
-        position: 'absolute'
-    },
+    
     textContainer: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        alignSelf: 'flex-end'
+       width: '100%',
+        alignSelf: 'flex-start'
     },
     text: {
         color: 'white',
-        fontSize: 20,
-        margin: 6
+        fontSize: 22,
+        margin: 6,
+        textAlign: 'center'
     }
 })
