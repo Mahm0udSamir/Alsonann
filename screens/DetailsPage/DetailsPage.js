@@ -12,16 +12,24 @@ class DetailsPage extends React.Component {
         url: null
           
     }
-
     static navigationOptions = ({ navigation }) => {
         const title = navigation.state.params.item.TITLE;
-        return { headerTitle: title}
+        return { 
+            headerTitle: title,
+            // headerRight:() => (
+            //          <TouchableOpacity 
+            //              onPress={navigation.navigate('PlayListPlayer')}>
+            //              <View style={{color: '#ccc'}}>
+            //                  <Ionicons name="md-play" size={32} color="gray" />
+            //              </View>   
+            //          </TouchableOpacity>
+            //      )
+        }
+        
     };
 
-    toProductDetailsPage = (productDetails) => {
-        this.props.navigation.navigate('Product', {
-            productDetails: productDetails
-        })
+    toPlayListPlayer = () => {
+        this.props.navigation.navigate('PlayListPlayer' )
     }
 
     _playRecording = async () => {
@@ -173,7 +181,7 @@ class DetailsPage extends React.Component {
                                     <View style={{   justifyContent: 'flex-start', alignItems: 'flex-start', margin: 3}}>     
                                         <TouchableOpacity 
                                         style={{backgroundColor: '#fff', borderWidth:2, borderColor: '#fff', borderRadius: 400, paddingHorizontal: 9, paddingVertical: 2}}
-                                        onPress={() => this._playAndPause(itemData.item.AUDIO)}>
+                                        onPress={() => this.toPlayListPlayer()}>
                                             {
                                                 (this.state.playingStatus == 'playing' && this.state.url == itemData.item.AUDIO)?
                                                 <Ionicons name="md-pause"  size={32} color="#000" /> :

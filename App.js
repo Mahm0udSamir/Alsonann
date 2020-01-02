@@ -3,6 +3,7 @@ import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from 'react-navigation-stack';
 import HomePage from './screens/HomePage/HomePage';
 import DetailsPage from './screens/DetailsPage/DetailsPage';
+import PlayListPlayer from './screens/PlaylistPlayer/PlaylistPlayer';
 
 export default class App extends React.Component {
   render() {
@@ -24,9 +25,9 @@ const AppStackNavigator = createStackNavigator({
   Details: {
     screen: DetailsPage
   },
-  // Product: {
-  //   screen: ProductDetailsPage,
-  // },
+  PlayListPlayer: {
+    screen: PlayListPlayer,
+  },
   
   
 });
