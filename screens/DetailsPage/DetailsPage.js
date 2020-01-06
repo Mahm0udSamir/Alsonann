@@ -7,9 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 class DetailsPage extends React.Component {
     state = {
-        Invocations : null,
-        playingStatus: 'nosound',
-        url: null
+        Invocations : null
           
     }
     static navigationOptions = ({ navigation }) => {
@@ -28,92 +26,23 @@ class DetailsPage extends React.Component {
         
     };
 
-    toPlayListPlayer = () => {
-        this.props.navigation.navigate('PlayListPlayer' )
+    toPlayListPlayer = (index) => {
+        const title = this.props.navigation.state.params.item.TITLE;
+        let Invocations = [...this.state.Invocations];
+        console.log('Befor Invocations :: ',  Invocations);
+
+        const Invocation = Invocations[index];
+        Invocations.splice(index, 1);
+        Invocations.unshift(Invocation);
+        console.log('After Invocations :: ', Invocations);
+        this.props.navigation.navigate('PlayListPlayer', {Invocations: Invocations, title: title} )
     }
 
-    _playRecording = async () => {
-        try {
-            const sound = await new Audio.Sound();
-            sound.setOnPlaybackStatusUpdate(this._updateScreenForSoundStatus);
-            await sound.loadAsync(
-                {uri: this.state.url},
-                {
-                    shouldPlay: true,
-                    // isLooping: true,
-                },
-            );
-       
-            this.sound = sound;
-            await this.sound.playAsync();
-            this.setState({ playingStatus: "playing" });
-            // Your sound is playing!
-          } catch (error) {
-            // An error occurred!
-          }
-    }
-    
-    _updateScreenForSoundStatus = (status) => {
-        console.log('status : ', status)
-        if (status.isPlaying && this.state.playingStatus !== "playing") {
-          this.setState({ playingStatus: "playing" });
-        } else if (!status.isPlaying && this.state.playingStatus === "playing") {
-          this.setState({ playingStatus: "donepause" });
-        }
-        if(status.isLoaded && status.durationMillis == status.positionMillis) {
-            this.stopAsync();
-            this.sound = null;
-            this.setState({
-                playingStatus: "nosound",
-                url: null
-            })
-        }
+     
+     
 
-         
-      };
-
-    _pauseAndPlayRecording = async () => {
-    if (this.sound != null) {
-        if (this.state.playingStatus == 'playing') {
-        console.log('pausing...');
-        await this.sound.pauseAsync();
-        console.log('paused!');
-        this.setState({
-            playingStatus: 'donepause',
-        });
-        } else {
-        console.log('playing...');
-        await this.sound.playAsync();
-        console.log('playing!');
-        this.setState({
-            playingStatus: 'playing',
-        });
-        }
-    }
-    }
-    
-    _playAndPause = async (url) => {
-    if(this.state.url === null || this.state.url != url) {
-        if(this.sound != null){
-            await this.sound.pauseAsync();
-        }
-        this.sound = null;
-        console.log(url)
-        this.setState({playingStatus: 'nosound', url: url})
-            
-    } 
-    
-    switch (this.state.playingStatus) {
-        case 'nosound':
-         this._playRecording();
-        break;
-        case 'donepause':
-        case 'playing':
-         this._pauseAndPlayRecording();
-        break;
-    }
-    }
-
+     
+     
 
     componentDidMount() {
         const ID = this.props.navigation.state.params.item.ID;
@@ -144,21 +73,9 @@ class DetailsPage extends React.Component {
         })
     }
 
-    componentWillUnmount(){
-        if(this.sound != null){
-             this.stopAsync();     
-        }
-        this.sound = null;
-        console.log('out ::: ')
-    }
+   
     
-    stopAsync = async () => {
-        try {
-          await this.sound.stopAsync();
-        } catch (error) {
-            console.log(error)
-        }
-    }
+     
     
     
     render() {
@@ -172,24 +89,17 @@ class DetailsPage extends React.Component {
                     renderItem={
                         (itemData) => {
                             return (
-                                <View
-                                    style={styles.itemStyle} 
-                                    >
+                                <View style={styles.itemStyle}>
                                     <View style={styles.textContainer}>
                                         <Text style={styles.text}>  {itemData.item.ARABIC_TEXT} </Text>
                                     </View>
                                     <View style={{   justifyContent: 'flex-start', alignItems: 'flex-start', margin: 3}}>     
                                         <TouchableOpacity 
                                         style={{backgroundColor: '#fff', borderWidth:2, borderColor: '#fff', borderRadius: 400, paddingHorizontal: 9, paddingVertical: 2}}
-                                        onPress={() => this.toPlayListPlayer()}>
-                                            {
-                                                (this.state.playingStatus == 'playing' && this.state.url == itemData.item.AUDIO)?
-                                                <Ionicons name="md-pause"  size={32} color="#000" /> :
-                                                <Ionicons name="md-play"  size={32} color="#000" /> 
-                                            }
+                                        onPress={() => this.toPlayListPlayer(itemData.index)}>
+                                            <Ionicons name="md-play" size={32} color="#000" /> 
                                         </TouchableOpacity>
                                     </View>
-
                                 </View>
                             )
                         }
@@ -219,7 +129,7 @@ const styles = StyleSheet.create({
     
     textContainer: {
         flex: 1,
-       width: '100%',
+        width: '100%',
         alignSelf: 'flex-start'
     },
     text: {

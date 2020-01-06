@@ -6,13 +6,14 @@ import {
   StyleSheet,
   Text,
   TouchableHighlight,
-  View
+  View,
+  ScrollView
 } from "react-native";
 import { Asset } from "expo-asset";
 import { Audio, Video } from "expo-av";
 import * as Font from "expo-font";
 
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 
 class Icon {
   constructor(module, width, height) {
@@ -31,84 +32,38 @@ class PlaylistItem {
   }
 }
 
-const PLAYLIST = [
-  new PlaylistItem(
-    "Comfort Fit - “Sorry”",
-    "https://s3.amazonaws.com/exp-us-standard/audio/playlist-example/Comfort_Fit_-_03_-_Sorry.mp3",
-    false
-  ),
-  new PlaylistItem(
-    "Big Buck Bunny",
-    "http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
-    true
-  ),
-  new PlaylistItem(
-    "Mildred Bailey – “All Of Me”",
-    "https://ia800304.us.archive.org/34/items/PaulWhitemanwithMildredBailey/PaulWhitemanwithMildredBailey-AllofMe.mp3",
-    false
-  ),
-  new PlaylistItem(
-    "Popeye - I don't scare",
-    "https://ia800501.us.archive.org/11/items/popeye_i_dont_scare/popeye_i_dont_scare_512kb.mp4",
-    true
-  ),
-  new PlaylistItem(
-    "Podington Bear - “Rubber Robot”",
-    "https://s3.amazonaws.com/exp-us-standard/audio/playlist-example/Podington_Bear_-_Rubber_Robot.mp3",
-    false
-  )
-];
+let PLAYLIST = [];
+//   new PlaylistItem(
+//     "Comfort Fit - “Sorry”",
+//     "https://s3.amazonaws.com/exp-us-standard/audio/playlist-example/Comfort_Fit_-_03_-_Sorry.mp3",
+//     false
+//   ),
+//   new PlaylistItem(
+//     "Big Buck Bunny",
+//     "http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
+//     true
+//   ),
+//   new PlaylistItem(
+//     "Mildred Bailey – “All Of Me”",
+//     "https://ia800304.us.archive.org/34/items/PaulWhitemanwithMildredBailey/PaulWhitemanwithMildredBailey-AllofMe.mp3",
+//     false
+//   ),
+//   new PlaylistItem(
+//     "Popeye - I don't scare",
+//     "https://ia800501.us.archive.org/11/items/popeye_i_dont_scare/popeye_i_dont_scare_512kb.mp4",
+//     true
+//   ),
+//   new PlaylistItem(
+//     "Podington Bear - “Rubber Robot”",
+//     "https://s3.amazonaws.com/exp-us-standard/audio/playlist-example/Podington_Bear_-_Rubber_Robot.mp3",
+//     false
+//   )
+// ];
 
-const ICON_THROUGH_EARPIECE = "speaker-phone";
-const ICON_THROUGH_SPEAKER = "speaker";
+ 
 
-const ICON_PLAY_BUTTON = new Icon(
-  require("./../../assets/images/play_button.png"),
-  34,
-  51
-);
-const ICON_PAUSE_BUTTON = new Icon(
-  require("./../../assets/images/pause_button.png"),
-  34,
-  51
-);
-const ICON_STOP_BUTTON = new Icon(
-  require("./../../assets/images/stop_button.png"),
-  22,
-  22
-);
-const ICON_FORWARD_BUTTON = new Icon(
-  require("./../../assets/images/forward_button.png"),
-  33,
-  25
-);
-const ICON_BACK_BUTTON = new Icon(
-  require("./../../assets/images/back_button.png"),
-  33,
-  25
-);
-
-const ICON_LOOP_ALL_BUTTON = new Icon(
-  require("./../../assets/images/loop_all_button.png"),
-  77,
-  35
-);
-const ICON_LOOP_ONE_BUTTON = new Icon(
-  require("./../../assets/images/loop_one_button.png"),
-  77,
-  35
-);
-
-const ICON_MUTED_BUTTON = new Icon(
-  require("./../../assets/images/muted_button.png"),
-  67,
-  58
-);
-const ICON_UNMUTED_BUTTON = new Icon(
-  require("./../../assets/images/unmuted_button.png"),
-  67,
-  58
-);
+ 
+ 
 
 const ICON_TRACK_1 = new Icon(require("./../../assets/images/track_1.png"), 166, 5);
 const ICON_THUMB_1 = new Icon(require("./../../assets/images/thumb_1.png"), 18, 19);
@@ -116,8 +71,7 @@ const ICON_THUMB_2 = new Icon(require("./../../assets/images/thumb_2.png"), 15, 
 
 const LOOPING_TYPE_ALL = 0;
 const LOOPING_TYPE_ONE = 1;
-const LOOPING_TYPE_ICONS = { 0: ICON_LOOP_ALL_BUTTON, 1: ICON_LOOP_ONE_BUTTON };
-
+ 
 const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = Dimensions.get("window");
 const BACKGROUND_COLOR = "#FFF8ED";
 const DISABLED_OPACITY = 0.5;
@@ -125,9 +79,16 @@ const FONT_SIZE = 14;
 const LOADING_STRING = "... loading ...";
 const BUFFERING_STRING = "...buffering...";
 const RATE_SCALE = 3.0;
-const VIDEO_CONTAINER_HEIGHT = (DEVICE_HEIGHT * 2.0) / 5.0 - FONT_SIZE * 2;
+let VIDEO_CONTAINER_HEIGHT = (DEVICE_HEIGHT * 2.0) / 5.0  ;
 
 export default class PlayListPlayer extends React.Component {
+  static navigationOptions = ({ navigation }) => {
+    const {title} =  navigation.state.params;
+    return { 
+        headerTitle: title
+    }
+  };
+
   constructor(props) {
     super(props);
     this.index = 0;
@@ -158,7 +119,21 @@ export default class PlayListPlayer extends React.Component {
     };
   }
 
+ 
+
   componentDidMount() {
+    PLAYLIST = []
+    const {Invocations} = this.props.navigation.state.params;
+    Invocations.map(item => {
+       PLAYLIST.push(
+         new PlaylistItem(
+          item.ARABIC_TEXT,
+          item.AUDIO,
+          false
+       ))
+    })
+   
+    
     Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
       staysActiveInBackground: false,
@@ -168,6 +143,7 @@ export default class PlayListPlayer extends React.Component {
       interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
       playThroughEarpieceAndroid: false
     });
+
     (async () => {
       await Font.loadAsync({
         ...MaterialIcons.font,
@@ -175,12 +151,13 @@ export default class PlayListPlayer extends React.Component {
       });
       this.setState({ fontLoaded: true });
     })();
+    
   }
 
   componentWillUnmount(){
     this._onStopPressed();  
-    
     console.log('out ::: ')
+    // PLAYLIST = [];
 }
 
   async _loadNewPlaybackInstance(playing) {
@@ -486,26 +463,28 @@ export default class PlayListPlayer extends React.Component {
   };
 
   render() {
-    return !this.state.fontLoaded ? (
+    return (!this.state.fontLoaded ? (
       <View style={styles.emptyContainer} />
-    ) : (
+    ) :
       <View style={styles.container}>
-        <View />
+         
         <View style={styles.nameContainer}>
-          <Text style={[styles.text, { fontFamily: "cutive-mono-regular" }]}>
-            {this.state.playbackInstanceName}
-          </Text>
+          <ScrollView style={{height: '100%', padding: 15}}>
+            <Text style={[styles.textView, { fontFamily: "cutive-mono-regular" }]}>
+              {this.state.playbackInstanceName}
+            </Text>
+          </ScrollView>
         </View>
-        <View style={styles.space} />
-        <View style={styles.videoContainer}>
+           
+        <View style={{height: 0}}>
           <Video
             ref={this._mountVideo}
             style={[
               styles.video,
               {
                 opacity: this.state.showVideo ? 1.0 : 0.0,
-                width: this.state.videoWidth,
-                height: this.state.videoHeight
+                width: 0,
+                height: 0
               }
             ]}
             resizeMode={Video.RESIZE_MODE_CONTAIN}
@@ -570,31 +549,29 @@ export default class PlayListPlayer extends React.Component {
             style={styles.wrapper}
             onPress={this._onBackPressed}
             disabled={this.state.isLoading}
-          >
-            <Image style={styles.button} source={ICON_BACK_BUTTON.module} />
-          </TouchableHighlight>
+          > 
+            <Ionicons name="md-rewind" size={35} color="#000" />
+           </TouchableHighlight>
           <TouchableHighlight
             underlayColor={BACKGROUND_COLOR}
             style={styles.wrapper}
             onPress={this._onPlayPausePressed}
             disabled={this.state.isLoading}
           >
-            <Image
-              style={styles.button}
-              source={
-                this.state.isPlaying
-                  ? ICON_PAUSE_BUTTON.module
-                  : ICON_PLAY_BUTTON.module
-              }
-            />
+            {
+              this.state.isPlaying
+                ?<Ionicons name="md-pause" size={35} color="#000" />
+                :<Ionicons name="md-play" size={35} color="#000" />
+            }
+
           </TouchableHighlight>
           <TouchableHighlight
             underlayColor={BACKGROUND_COLOR}
             style={styles.wrapper}
             onPress={this._onStopPressed}
             disabled={this.state.isLoading}
-          >
-            <Image style={styles.button} source={ICON_STOP_BUTTON.module} />
+          > 
+             <Ionicons name="md-square" size={35} color="#000" />
           </TouchableHighlight>
           <TouchableHighlight
             underlayColor={BACKGROUND_COLOR}
@@ -602,7 +579,8 @@ export default class PlayListPlayer extends React.Component {
             onPress={this._onForwardPressed}
             disabled={this.state.isLoading}
           >
-            <Image style={styles.button} source={ICON_FORWARD_BUTTON.module} />
+            <Ionicons name="md-fastforward" size={35} color="#000" />
+
           </TouchableHighlight>
         </View>
         <View
@@ -617,14 +595,12 @@ export default class PlayListPlayer extends React.Component {
               style={styles.wrapper}
               onPress={this._onMutePressed}
             >
-              <Image
-                style={styles.button}
-                source={
+                {
                   this.state.muted
-                    ? ICON_MUTED_BUTTON.module
-                    : ICON_UNMUTED_BUTTON.module
+                    ?<Ionicons name="md-volume-off" size={35} color="#000" />
+                    :<Ionicons name="md-volume-high" size={35} color="#000" />
                 }
-              />
+  
             </TouchableHighlight>
             <Slider
               style={styles.volumeSlider}
@@ -639,10 +615,8 @@ export default class PlayListPlayer extends React.Component {
             style={styles.wrapper}
             onPress={this._onLoopPressed}
           >
-            <Image
-              style={styles.button}
-              source={LOOPING_TYPE_ICONS[this.state.loopingType].module}
-            />
+            
+            <Ionicons name="md-refresh" size={35} color={this.state.loopingType === LOOPING_TYPE_ONE? "gray": "#000"} />
           </TouchableHighlight>
         </View>
         <View
@@ -671,99 +645,9 @@ export default class PlayListPlayer extends React.Component {
             value={this.state.rate / RATE_SCALE}
             onSlidingComplete={this._onRateSliderSlidingComplete}
           />
-          <TouchableHighlight
-            underlayColor={BACKGROUND_COLOR}
-            style={styles.wrapper}
-            onPress={this._onPitchCorrectionPressed}
-          >
-            <View style={styles.button}>
-              <Text
-                style={[styles.text, { fontFamily: "cutive-mono-regular" }]}
-              >
-                PC: {this.state.shouldCorrectPitch ? "yes" : "no"}
-              </Text>
-            </View>
-          </TouchableHighlight>
-          <TouchableHighlight
-            onPress={this._onSpeakerPressed}
-            underlayColor={BACKGROUND_COLOR}
-          >
-            <MaterialIcons
-              name={
-                this.state.throughEarpiece
-                  ? ICON_THROUGH_EARPIECE
-                  : ICON_THROUGH_SPEAKER
-              }
-              size={32}
-              color="black"
-            />
-          </TouchableHighlight>
         </View>
-        <View />
-        {this.state.showVideo ? (
-          <View>
-            <View
-              style={[
-                styles.buttonsContainerBase,
-                styles.buttonsContainerTextRow
-              ]}
-            >
-              <View />
-              <TouchableHighlight
-                underlayColor={BACKGROUND_COLOR}
-                style={styles.wrapper}
-                onPress={this._onPosterPressed}
-              >
-                <View style={styles.button}>
-                  <Text
-                    style={[styles.text, { fontFamily: "cutive-mono-regular" }]}
-                  >
-                    Poster: {this.state.poster ? "yes" : "no"}
-                  </Text>
-                </View>
-              </TouchableHighlight>
-              <View />
-              <TouchableHighlight
-                underlayColor={BACKGROUND_COLOR}
-                style={styles.wrapper}
-                onPress={this._onFullscreenPressed}
-              >
-                <View style={styles.button}>
-                  <Text
-                    style={[styles.text, { fontFamily: "cutive-mono-regular" }]}
-                  >
-                    Fullscreen
-                  </Text>
-                </View>
-              </TouchableHighlight>
-              <View />
-            </View>
-            <View style={styles.space} />
-            <View
-              style={[
-                styles.buttonsContainerBase,
-                styles.buttonsContainerTextRow
-              ]}
-            >
-              <View />
-              <TouchableHighlight
-                underlayColor={BACKGROUND_COLOR}
-                style={styles.wrapper}
-                onPress={this._onUseNativeControlsPressed}
-              >
-                <View style={styles.button}>
-                  <Text
-                    style={[styles.text, { fontFamily: "cutive-mono-regular" }]}
-                  >
-                    Native Controls:{" "}
-                    {this.state.useNativeControls ? "yes" : "no"}
-                  </Text>
-                </View>
-              </TouchableHighlight>
-              <View />
-            </View>
-          </View>
-        ) : null}
+         
+         
       </View>
     );
   }
@@ -780,17 +664,28 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     alignSelf: "stretch",
-    backgroundColor: BACKGROUND_COLOR
+    backgroundColor: BACKGROUND_COLOR,
+    paddingBottom: 10,
+    padding: 5
   },
   wrapper: {},
   nameContainer: {
-    height: FONT_SIZE
+    height: VIDEO_CONTAINER_HEIGHT+90,
+    padding: 0,
+    margin: 0
+
+  },
+  textView: {
+    textAlign: 'center',
+    fontSize: 23,
+    marginHorizontal: 10,
+    marginBottom: 19
   },
   space: {
-    height: FONT_SIZE
+    height: 0
   },
   videoContainer: {
-    height: VIDEO_CONTAINER_HEIGHT
+    height: 0
   },
   video: {
     maxWidth: DEVICE_WIDTH
@@ -801,8 +696,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     alignSelf: "stretch",
-    minHeight: ICON_THUMB_1.height * 2.0,
-    maxHeight: ICON_THUMB_1.height * 2.0
+    minHeight: 35 * 2.0,
+    maxHeight: 35 * 2.0
   },
   playbackSlider: {
     alignSelf: "stretch"
@@ -837,12 +732,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   buttonsContainerTopRow: {
-    maxHeight: ICON_PLAY_BUTTON.height,
+    maxHeight: 35,
     minWidth: DEVICE_WIDTH / 2.0,
-    maxWidth: DEVICE_WIDTH / 2.0
+    maxWidth: DEVICE_WIDTH / 2.0 
   },
   buttonsContainerMiddleRow: {
-    maxHeight: ICON_MUTED_BUTTON.height,
+    maxHeight: 35,
     alignSelf: "stretch",
     paddingRight: 20
   },
@@ -852,19 +747,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     minWidth: DEVICE_WIDTH / 2.0,
-    maxWidth: DEVICE_WIDTH / 2.0
+    maxWidth: DEVICE_WIDTH / 2.0,
+    padding: 9
   },
   volumeSlider: {
-    width: DEVICE_WIDTH / 2.0 - ICON_MUTED_BUTTON.width
+    width: DEVICE_WIDTH - 35 * 2 - 15
   },
   buttonsContainerBottomRow: {
-    maxHeight: ICON_THUMB_1.height,
+    maxHeight: 35,
     alignSelf: "stretch",
     paddingRight: 20,
     paddingLeft: 20
   },
   rateSlider: {
-    width: DEVICE_WIDTH / 2.0
+    width: '90%'
   },
   buttonsContainerTextRow: {
     maxHeight: FONT_SIZE,
